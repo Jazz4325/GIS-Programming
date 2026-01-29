@@ -1,53 +1,41 @@
-from pprint import pprint
 import rasterio
 from rasterio.plot import show
-from matplotlib import pyplot as plt
-import numpy as np
+import argparse
+from pyproj import CRS
+
+parser = argparse.ArgumentParser()
+parser.add_argument("input", help="Input Raster Image (.tif)")
+
+actions = parser.add_mutually_exclusive_group(required=True)
+actions.add_argument("-i", "--info", action="store_true", help="Print basic information about the raster dataset.")
+actions.add_argument("-p", "--plot", action="store_true", help="Plot your shapefile using matplotlib.")
+
+args = parser.parse_args()
 
 
-### FOR NEXT TIME ###
-# Wrap saving into a function
-# Add argparse
+# Open Raster and access Metadata [rastario] , [pyproj]
+
+with rasterio.open(args.input) as src:
+
+    # 1. Print Raster Metadata
+    if args.info:
+        print("\n--- Raster image info ---")
+        print(f"File: {args.input}")
+        print(f"Dimensions: {src.width} x {src.height}")
+        print(f"Pixel count: {src.width * src.height:,}")
+        crs = src.crs
+        if crs:
+            print("------------------CRS------------------------")
+            print(crs)
+            crs = CRS.from_wkt(src.crs.to_wkt())
+            print(crs.name)
+        else:
+            print("CRS: None (no CRS defined)")
+        print(" ------------------Resolution------------------------")
+        print(f"Pixel size: {src.res}")
+        print("(Linear units correspond to raster's CRS)")
 
 
-
-# Open Raster and access Metadata
-
-input_raster = r"thermal.tif"
-with rasterio.open(input_raster) as src:
-    metadata = src.profile
-
-
-
-    # 1. Quick plot
-    
-    show(src)
-
-
-    # 2. Print Raster Metadata
-
-    pprint(metadata)
-    
-
-    # 3. Save Raster as .png
-
-    if metadata["count"] < 3:
-        # Do single band logic; save as grayscale image
-        pixels = src.read(1)
-
-        # Use single band as R, G, and B values
-        pixels = np.stack([pixels, pixels, pixels], axis=-1)
-
-    else:
-        # RGB logic; assume bands 1, 2, 3 are R, G, B
-        pixels = src.read([1, 2, 3])
-
-        # Reorder to (rows, cols, bands)
-        pixels = pixels.transpose(1, 2, 0)
-
-    # Normalize
-    pixels = pixels.astype("float32")
-    pixels = (pixels - pixels.min()) / (pixels.max() - pixels.min())
-
-    # Export
-    plt.imsave("my_file.png", pixels)
+    # 2. Quick plot [rastario.plot]
+    if args.plot:
+        show(src)

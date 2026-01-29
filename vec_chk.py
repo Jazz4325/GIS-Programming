@@ -15,7 +15,6 @@ actions.add_argument("-e", "--export", action="store_true",help="Export your sha
 args = parser.parse_args()
 
 
-
 # 1. Load Shapefile ZIP as GeoDataFrame [geopandas]
 
 gdf = gpd.read_file(args.input)  
@@ -50,12 +49,11 @@ if args.plot:
     plt.show()
 
 
-# 4. Browse Attribute Table - (THIS IS GOATED) [pandasgui]
+# 4. Browse Attribute Table [pandasgui]
 
 if args.browse:
     show(gdf) 
  
-
 
 # 5. Save as .csv (default saves to current working directory) [geopandas]
 # -- save only specific fields --
