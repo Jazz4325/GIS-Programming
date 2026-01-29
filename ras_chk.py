@@ -23,6 +23,7 @@ with rasterio.open(args.input) as src:
         total_area = cell_area * src.width * src.height
         print("\n--- Raster image info ---")
         print(f"File: {args.input}")
+        print(f"Number of bands: {src.count}")
         crs = src.crs
         if crs:
             print("------------------CRS------------------------")
