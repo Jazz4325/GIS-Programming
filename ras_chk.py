@@ -19,21 +19,26 @@ with rasterio.open(args.input) as src:
 
     # 1. Print Raster Metadata
     if args.info:
+        cell_area = abs(src.transform.a * src.transform.e)
+        total_area = cell_area * src.width * src.height
         print("\n--- Raster image info ---")
         print(f"File: {args.input}")
-        print(f"Dimensions: {src.width} x {src.height}")
-        print(f"Pixel count: {src.width * src.height:,}")
         crs = src.crs
         if crs:
             print("------------------CRS------------------------")
             print(crs)
             crs = CRS.from_wkt(src.crs.to_wkt())
             print(crs.name)
-        else:
+        if not crs.is_projected:
+            print("CRS is geographic (units are degrees)")
+        if not crs:
             print("CRS: None (no CRS defined)")
         print(" ------------------Resolution------------------------")
         print(f"Pixel size: {src.res}")
-        print("(Linear units correspond to raster's CRS)")
+        print(f"Dimensions: {src.width} x {src.height}")
+        print(f"Pixel count: {src.width * src.height:,}")
+        print(f"Cell area: {cell_area:.0f}")
+        print(f"Total area: {total_area:,.0f}")
 
 
     # 2. Quick plot [rastario.plot]
